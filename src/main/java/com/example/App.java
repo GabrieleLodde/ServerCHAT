@@ -17,7 +17,7 @@ public class App
                 Socket dataSocket = connectSocket.accept();
                 //System.out.println("> Si e' connesso un nuovo partecipante con Socket " + dataSocket.getRemoteSocketAddress());
 
-                ServerThread serverThread = new ServerThread(dataSocket, partecipanti);
+                ServerThread serverThread = new ServerThread(dataSocket, partecipanti, "");
                 partecipanti.add(serverThread);
                 serverThread.start();
             }
@@ -25,6 +25,5 @@ public class App
             e.getMessage();
             System.out.println("> Errore durante l'istanza del server!");
         }
-
     }
 }
