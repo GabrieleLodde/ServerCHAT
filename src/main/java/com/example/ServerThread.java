@@ -10,11 +10,16 @@ import java.util.ArrayList;
 public class ServerThread extends Thread{
     
     Socket clientSocket;
+    Socket sBroadcast;
     ArrayList <ServerThread> partecipanti;
     String nicknameClient;
+    BufferedReader inDalClient;
+    DataOutputStream outVersoIlClient;
+    DataOutputStream outBroadcast;
 
-    public ServerThread(Socket s, ArrayList <ServerThread> array, String nome){
+    public ServerThread(Socket s, Socket sBroadcast, ArrayList <ServerThread> array, String nome){
         this.clientSocket = s;
+        this.sBroadcast = sBroadcast;
         this.partecipanti = array;
         this.nicknameClient = nome;
     }
@@ -22,8 +27,11 @@ public class ServerThread extends Thread{
     @Override
     public void run(){
         try {
-            BufferedReader inDalClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            DataOutputStream outVersoIlClient = new DataOutputStream(clientSocket.getOutputStream());
+            inDalClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            outVersoIlClient = new DataOutputStream(clientSocket.getOutputStream());
+
+            outBroadcast = new DataOutputStream(sBroadcast.getOutputStream());
+
             boolean esci = false;
             String stringaRicevuta = "";
 
@@ -31,26 +39,37 @@ public class ServerThread extends Thread{
             System.out.println("> " + nicknameClient +  " si e' unito al gruppo!");
 
             while(!esci){
-                stringaRicevuta = inDalClient.readLine(); //leggo cosa ha scelto il client
+                stringaRicevuta = inDalClient.readLine();
                 
-                if(stringaRicevuta.equals("1")){
-                    stringaRicevuta = inDalClient.readLine(); //leggo il messaggio che un client ha intenzione di inviare a tutti 
-                    
-                    //System.out.println(stringaRicevuta);  //stampo il messaggio per verificare cosa ha inviato il client (non necessario) 
-                    
-                    outVersoIlClient.writeBytes(stringaRicevuta + "\n"); //invio il messaggio inviato in broadcast (in teoria)
+                if(stringaRicevuta.startsWith("@all:")){
+                    stringaRicevuta = stringaRicevuta.substring(5);
+                    stringaRicevuta = "> " + this.getNicknameClient() + " ha scritto " + stringaRicevuta; 
+                    inviaATutti(stringaRicevuta);
                 }
-                if(stringaRicevuta.equals("-1")){
+                else if(stringaRicevuta.equals("-1")){
                     esci = true;
                     System.out.println("> " + nicknameClient + " ha abbandonato il gruppo");
                 }
             }
             clientSocket.close();
+            sBroadcast.close();
 
         } catch (IOException e) {
             e.getMessage();
             System.out.println("> Attenzione, errore nella comunicazione");
         }
+    }
+
+    public String getNicknameClient(){
+        return this.nicknameClient;
+    }
+
+    public DataOutputStream getOutVersoIlClient(){
+        return this.outVersoIlClient;
+    }
+
+    public DataOutputStream getOutBroadcast() throws IOException{
+        return this.outBroadcast;
     }
 
     public String ricercaNome(ArrayList <ServerThread> array, String nickInserito){
@@ -63,7 +82,14 @@ public class ServerThread extends Thread{
         return nome;
     }
 
-    public String getNicknameClient(){
-        return this.nicknameClient;
+    public void inviaATutti(String messaggioDaInviare){
+        for(int i = 0; i < this.partecipanti.size(); i ++){
+            try {
+                this.partecipanti.get(i).getOutBroadcast().writeBytes(messaggioDaInviare + "\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("> Errore nell'invio del messaggio in broadcast");
+            }
+        }
     }
 }

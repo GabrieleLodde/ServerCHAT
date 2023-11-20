@@ -11,13 +11,17 @@ public class App
         try {
             System.out.println("> Avvio del server....");
             ServerSocket connectSocket = new ServerSocket(4500);
+
+            ServerSocket sBroadcast = new ServerSocket(4501);
+            
             ArrayList <ServerThread> partecipanti = new ArrayList <ServerThread> ();
+            
 
             while(true){
                 Socket dataSocket = connectSocket.accept();
-                //System.out.println("> Si e' connesso un nuovo partecipante con Socket " + dataSocket.getRemoteSocketAddress());
+                Socket broadcastSocket = sBroadcast.accept();
 
-                ServerThread serverThread = new ServerThread(dataSocket, partecipanti, "");
+                ServerThread serverThread = new ServerThread(dataSocket, broadcastSocket, partecipanti, "");
                 partecipanti.add(serverThread);
                 serverThread.start();
             }
