@@ -24,6 +24,10 @@ public class App
                 ServerThread serverThread = new ServerThread(dataSocket, broadcastSocket, partecipanti, "");
                 partecipanti.add(serverThread);
                 serverThread.start();
+
+                if(partecipanti.size() == 0){
+                    System.out.println("> Tutti i partecipanti hanno abbandonato il gruppo!");
+                }
             }
         } catch (Exception e) {
             e.getMessage();
