@@ -9,20 +9,20 @@ import java.util.ArrayList;
 
 public class ServerThread extends Thread{
     
-    Socket clientSocket;
-    Socket broadcastSocket;
-    ArrayList <ServerThread> partecipanti;
-    String nicknameClient;
-    BufferedReader inDalClient;
-    DataOutputStream outVersoIlClient;
-    DataOutputStream outBroadcast;
-    boolean exit;
-    String exitString;
-    String receivedString;
-    String sendString;
-    String nickString;
-    String privateMessage;
-    int indexClient;
+    private Socket clientSocket;
+    private Socket broadcastSocket;
+    public ArrayList <ServerThread> partecipanti;
+    private String nicknameClient;
+    private BufferedReader inDalClient;
+    private DataOutputStream outVersoIlClient;
+    private DataOutputStream outBroadcast;
+    private boolean exit;
+    private String exitString;
+    private String receivedString;
+    private String sendString;
+    private String nickString;
+    private String privateMessage;
+    private int indexClient;
 
     public ServerThread(Socket clientSocket, Socket broadcastSocket, ArrayList <ServerThread> partecipanti, String nicknameClient){
         this.clientSocket = clientSocket;
@@ -106,7 +106,7 @@ public class ServerThread extends Thread{
             e.printStackTrace();
             System.out.println("> Errore durante la ricezione del nickname del client");
         }
-        sendString = "> " + nicknameClient +  " si e' unito/a al gruppo!;";
+        sendString = "> :" + nicknameClient +  ": si e' unito/a al gruppo!;: ";
         inviaATutti(sendString);
     }
 
@@ -116,12 +116,13 @@ public class ServerThread extends Thread{
 
     public void inviaMessaggioInBroadcast(){
         receivedString = receivedString.substring(5);
-        sendString = "> " + this.getNicknameClient() + " ha scritto " + receivedString; 
+        sendString = "> :" + this.getNicknameClient() + ": ha scritto " + ":" + receivedString; 
         inviaATutti(sendString);
+        System.out.println(sendString);
     }
 
     public void uscitaDalGruppo(){
-        exitString = "> " + nicknameClient + " ha abbandonato il gruppo!;";
+        exitString = "> :" + nicknameClient + ": ha abbandonato il gruppo!;: ";
         inviaATutti(exitString);
         this.partecipanti.remove(getServerThreadCorrente());
         exit = true;
