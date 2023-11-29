@@ -12,22 +12,14 @@ public class App
             System.out.println("> Avvio del server....");
             ServerSocket connectSocket = new ServerSocket(4500);
 
-            ServerSocket sBroadcast = new ServerSocket(4501);
+            ArrayList <ClientCollegato> partecipanti = new ArrayList <ClientCollegato> ();
             
-            ArrayList <ServerThread> partecipanti = new ArrayList <ServerThread> ();
-            
-
             while(true){
                 Socket dataSocket = connectSocket.accept();
-                Socket broadcastSocket = sBroadcast.accept();
 
-                ServerThread serverThread = new ServerThread(dataSocket, broadcastSocket, partecipanti, "");
+                ClientCollegato serverThread = new ClientCollegato(dataSocket, partecipanti, "");
                 partecipanti.add(serverThread);
                 serverThread.start();
-
-                if(partecipanti.size() == 0){
-                    System.out.println("> Tutti i partecipanti hanno abbandonato il gruppo!");
-                }
             }
         } catch (Exception e) {
             e.getMessage();
