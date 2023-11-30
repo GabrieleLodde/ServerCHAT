@@ -21,6 +21,7 @@ public class ClientCollegato extends Thread {
         this.clientSocket = clientSocket;
         this.partecipanti = partecipanti;
         this.nickname = nickname;
+        this.exit = false;
         this.messageClient = "";
     }
 
@@ -28,30 +29,25 @@ public class ClientCollegato extends Thread {
     public void run() {
         try {
             instauraCanaliClient();
-            inizializzaVariabili();
-
             do {
                 messageClient = inDalClient.readLine();
                 if (messageClient instanceof String && !messageClient.equals(null)) {
-                    if (messageClient.split(":")[0].equals("/nick")) {
-                        System.out.println(messageClient.split(":")[0]);
-                        System.out.println(messageClient.split(":")[1]);
+                    if (messageClient.split(":")[0].equals("@nick")) {
                         this.setNickname(messageClient.split(":")[1]);
-                        inoltraMessaggio(messageClient);
-                    } else if (messageClient.split(":")[0].equals("/all")) {
-                        inoltraMessaggio(messageClient);
-                    } else if (messageClient.split(":")[0].equals("/lista")) {
+                        inoltraMessaggioBroadcast(messageClient);
+                    } else if (messageClient.split(":")[0].equals("@all")) {
+                        inoltraMessaggioBroadcast(messageClient);
+                    } else if (messageClient.split(":")[0].equals("@lista")) {
                         inoltraLista(messageClient);
-                    } else if(messageClient.split(":")[0].equals("@only")){
+                    } else if (messageClient.split(":")[0].equals("@only")) {
                         inoltraMessaggioPrivato(messageClient);
-                    }
-                    else if (messageClient.split(":")[0].equals("/exit")) {
-                        inoltraMessaggio(messageClient);
-                        partecipanti.remove(this);
-                        exit = true;
+                    } else if (messageClient.split(":")[0].equals("@exit")) {
+                        inoltraMessaggioBroadcast(messageClient);
+                        partecipanti.remove(getClientCollegato());
+                        setExit(true);
                     }
                 }
-            } while (!exit);
+            } while (!isExit());
             clientSocket.close();
         } catch (IOException e) {
             e.getMessage();
@@ -74,10 +70,6 @@ public class ClientCollegato extends Thread {
         }
     }
 
-    public void inizializzaVariabili() {
-        exit = false;
-    }
-
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
@@ -86,7 +78,7 @@ public class ClientCollegato extends Thread {
         return this.nickname;
     }
 
-    public ClientCollegato getServerThreadCorrente() {
+    public ClientCollegato getClientCollegato() {
         return this;
     }
 
@@ -94,62 +86,124 @@ public class ClientCollegato extends Thread {
         return this.outVersoIlClient;
     }
 
-    public void inoltraMessaggio(String messageClient) {
-        for (int i = 0; i < this.partecipanti.size(); i++) {
-            if (!this.partecipanti.get(i).getNickname().equals(messageClient.split(":")[1]) && !this.partecipanti.get(i).getNickname().equals("")) {
-                try {
-                    this.partecipanti.get(i).getOutVersoIlClient().writeBytes(messageClient + "\n");
-                } catch (IOException e) {
-                    System.out.println("ERRORE NELL'INVIO DEL NICKNAME DEL NUOVO PARTECIPANTE");
-                }
-            }
-        }
+    public boolean isExit() {
+        return exit;
     }
 
-    public void inoltraLista(String messageClient){
-        try {
-            getOutVersoIlClient().writeBytes("/lista:" + getListaNicknames() + "\n");
-        } catch (IOException e) {
-            System.out.println("ERRORE NELL'INVIO DELLA LISTA AL CLIENT");;
-        }
-        
+    public void setExit(boolean exit) {
+        this.exit = exit;
     }
 
-    public String getListaNicknames(){
-        String lista = "";
-        for (int i = 0; i < this.partecipanti.size(); i++) {
-            lista += this.partecipanti.get(i).getNickname() + ";";
-        }
-        return lista;
-    }
-
-    public void inoltraMessaggioPrivato(String messageClient){
-        if(this.partecipanti.size() <= 1){
+    public boolean checkAlone(String textMessage) {
+        if (this.partecipanti.size() == 1 && !textMessage.equals("*")) {
             try {
-                outVersoIlClient.writeBytes("@alone:" + "\n");
+                getOutVersoIlClient().writeBytes("@alone1:" + "\n");
             } catch (IOException e) {
-                System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO @ALONE");
+                System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO IN BROADCAST (@alone1)");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void checkConfermaBroadcast(String textMessage) {
+        if (!textMessage.equals("*")) {
+            try {
+                getOutVersoIlClient().writeBytes("@ok1:" + "\n");
+            } catch (IOException e) {
+                System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO DI CONFERMA (@ok1)");
             }
         }
-        else{
-            boolean trovato = false;
+    }
+
+    public void inoltraMessaggioBroadcast(String messageClient) {
+        String nicknameClient = messageClient.split(":")[1];
+        String textMessage = messageClient.split(":")[2];
+        if (!checkAlone(textMessage)) {
+            checkConfermaBroadcast(textMessage);
             for (int i = 0; i < this.partecipanti.size(); i++) {
-                if(this.partecipanti.get(i).getNickname().equals(messageClient.split(":")[2])){
+                if (!this.partecipanti.get(i).getNickname().equals(nicknameClient)
+                        && !this.partecipanti.get(i).getNickname().equals("")) {
                     try {
-                        trovato = true;
-                        this.partecipanti.get(i).getOutVersoIlClient().writeBytes("@only:" + messageClient.split(":")[1] + ":" + messageClient.split(":")[2] + "\n");
+                        this.partecipanti.get(i).getOutVersoIlClient().writeBytes(messageClient + "\n");
                     } catch (IOException e) {
-                        System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO");
+                        System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO IN BROADCAST (@all)");
                     }
                 }
             }
-            if(!trovato){
-                try {
-                    outVersoIlClient.writeBytes("@wrong:" + "\n");
-                } catch (IOException e) {
-                    System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO @WRONG");
-                }
+        }
+    }
+
+    public boolean checkAlonePrivate() {
+        if (this.partecipanti.size() == 1) {
+            try {
+                outVersoIlClient.writeBytes("@alone2:" + "\n");
+            } catch (IOException e) {
+                System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO (@alone2)");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void inoltraErroreNickname(String privateNick) {
+        try {
+            getOutVersoIlClient().writeBytes("@wrong:" + privateNick + "\n");
+        } catch (IOException e) {
+            System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO (@wrong)");
+        }
+    }
+
+    public void inoltraConfermaPrivata(String privateNick) {
+        try {
+            getOutVersoIlClient().writeBytes("@ok2:" + privateNick + "\n");
+        } catch (IOException e) {
+            System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO DI CONFERMA (@ok2)");
+        }
+    }
+
+    public int ricercaPartecipante(String privateNick) {
+        for (int i = 0; i < this.partecipanti.size(); i++) {
+            if (this.partecipanti.get(i).getNickname().equals(privateNick)) {
+                return i;
             }
         }
+        return -1;
+    }
+
+    public void inoltraMessaggioPrivato(String messageClient) {
+        String privateNick = messageClient.split(":")[2].split("#")[0];
+        String textMessage = messageClient.split(":")[2].split("#")[1];
+        int index = ricercaPartecipante(privateNick);
+        if (index != -1) {
+            try {
+                this.partecipanti.get(index).getOutVersoIlClient()
+                        .writeBytes("@only:" + messageClient.split(":")[1] + ":" + textMessage + "\n");
+            } catch (IOException e) {
+                System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO (@only)");
+            }
+            inoltraConfermaPrivata(privateNick);
+        } else {
+            if (!checkAlonePrivate()) {
+                inoltraErroreNickname(privateNick);
+            }
+        }
+    }
+
+    public void inoltraLista(String messageClient) {
+        try {
+            getOutVersoIlClient().writeBytes("@lista:" + getListaNicknames() + "\n");
+        } catch (IOException e) {
+            System.out.println("ERRORE NELL'INVIO DELLA LISTA AL CLIENT");
+            ;
+        }
+    }
+
+    public String getListaNicknames() {
+        String lista = "";
+        for (int i = 0; i < this.partecipanti.size(); i++) {
+            lista += this.partecipanti.get(i).getNickname().toUpperCase() + ";";
+        }
+        return lista;
     }
 }

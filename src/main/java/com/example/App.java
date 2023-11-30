@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class App 
 {
     public static void main(String[] args )
-    {
+    { 
         try {
             System.out.println("> Avvio del server....");
             ServerSocket connectSocket = new ServerSocket(4500);
