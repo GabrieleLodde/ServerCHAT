@@ -11,19 +11,16 @@ public class App
         try {
             System.out.println("> Avvio del server....");
             ServerSocket connectSocket = new ServerSocket(4500);
-
             ArrayList <ClientCollegato> partecipanti = new ArrayList <ClientCollegato> ();
             
             while(true){
                 Socket dataSocket = connectSocket.accept();
-
-                ClientCollegato serverThread = new ClientCollegato(dataSocket, partecipanti, "");
-                partecipanti.add(serverThread);
-                serverThread.start();
+                ClientCollegato clientAccept = new ClientCollegato(dataSocket, partecipanti, "");
+                partecipanti.add(clientAccept);
+                clientAccept.start();
             }
         } catch (Exception e) {
-            e.getMessage();
-            System.out.println("> Errore durante l'istanza del server!");
+            System.out.println("ERRORE DURANTE L'ISTANZA DEL SERVER");
         }
     }
 }

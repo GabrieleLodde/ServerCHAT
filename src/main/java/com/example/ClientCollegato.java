@@ -50,8 +50,7 @@ public class ClientCollegato extends Thread {
             } while (!isExit());
             clientSocket.close();
         } catch (IOException e) {
-            e.getMessage();
-            System.out.println("> Attenzione, errore nella comunicazione");
+            System.out.println("ERRORE NELLA COMUNICAZIONE");
         }
     }
 
@@ -106,6 +105,18 @@ public class ClientCollegato extends Thread {
         return false;
     }
 
+    public boolean checkAlonePrivate() {
+        if (this.partecipanti.size() == 1) {
+            try {
+                outVersoIlClient.writeBytes("@alone2:" + "\n");
+            } catch (IOException e) {
+                System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO (@alone2)");
+            }
+            return true;
+        }
+        return false;
+    }
+
     public void checkConfermaBroadcast(String textMessage) {
         if (!textMessage.equals("*")) {
             try {
@@ -122,8 +133,7 @@ public class ClientCollegato extends Thread {
         if (!checkAlone(textMessage)) {
             checkConfermaBroadcast(textMessage);
             for (int i = 0; i < this.partecipanti.size(); i++) {
-                if (!this.partecipanti.get(i).getNickname().equals(nicknameClient)
-                        && !this.partecipanti.get(i).getNickname().equals("")) {
+                if (!this.partecipanti.get(i).getNickname().equals(nicknameClient) && !this.partecipanti.get(i).getNickname().equals("")) {
                     try {
                         this.partecipanti.get(i).getOutVersoIlClient().writeBytes(messageClient + "\n");
                     } catch (IOException e) {
@@ -132,18 +142,6 @@ public class ClientCollegato extends Thread {
                 }
             }
         }
-    }
-
-    public boolean checkAlonePrivate() {
-        if (this.partecipanti.size() == 1) {
-            try {
-                outVersoIlClient.writeBytes("@alone2:" + "\n");
-            } catch (IOException e) {
-                System.out.println("ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO (@alone2)");
-            }
-            return true;
-        }
-        return false;
     }
 
     public void inoltraErroreNickname(String privateNick) {
@@ -172,7 +170,7 @@ public class ClientCollegato extends Thread {
     }
 
     public void inoltraMessaggioPrivato(String messageClient) {
-        String privateNick = messageClient.split(":")[2].split("#")[0];
+        String privateNick = messageClient.split(":")[2].split("#")[0].toUpperCase();
         String textMessage = messageClient.split(":")[2].split("#")[1];
         int index = ricercaPartecipante(privateNick);
         if (index != -1) {
@@ -202,7 +200,7 @@ public class ClientCollegato extends Thread {
     public String getListaNicknames() {
         String lista = "";
         for (int i = 0; i < this.partecipanti.size(); i++) {
-            lista += this.partecipanti.get(i).getNickname().toUpperCase() + ";";
+            lista += this.partecipanti.get(i).getNickname() + ";";
         }
         return lista;
     }
