@@ -31,33 +31,33 @@ The ServerColors.java class is used to display each print on the terminal with c
 - Run the AppServer.java file on the server side. The server will be listening on port 4500.
 - For each command received, the server has specific methods that allow linear communication with the client.
 
-### Commands sent Server Side:
+## Commands sent Server Side:
 
-@new: --> This command identifies a confirmation message relating to the nickname entered by the client
+### @new: --> This command identifies a confirmation message relating to the nickname entered by the client
 
-@old: --> This command identifies an error message related to entering a nickname that already exists
+### @old: --> This command identifies an error message related to entering a nickname that already exists
 
-@nick: --> This command identifies a message joining a new client to the group, which is forwarded by the server to all connected clients
+### @nick: --> This command identifies a message joining a new client to the group, which is forwarded by the server to all connected clients
 
-@alone1: --> This command identifies an error message related to sending a broadcast message when the client is alone in the chat
+### @alone1: --> This command identifies an error message related to sending a broadcast message when the client is alone in the chat
 
-@ok1: --> This command identifies a confirmation message relating to the sending of a broadcast message
+### @ok1: --> This command identifies a confirmation message relating to the sending of a broadcast message
 
-@all: --> This command identifies a broadcast message with text
+### @all: --> This command identifies a broadcast message with text
 
-@alone2: --> This command identifies an error message related to sending a private message when the client is alone in the chat
+### @alone2: --> This command identifies an error message related to sending a private message when the client is alone in the chat
 
-@you: --> This command identifies an error message related to sending a private message when the client has entered its own nickname
+### @you: --> This command identifies an error message related to sending a private message when the client has entered its own nickname
 
-@wrong: --> This command identifies an error message related to sending a private message with nickname of a client that is not present
+### @wrong: --> This command identifies an error message related to sending a private message with nickname of a client that is not present
 
-@ok2: --> This command identifies a confirmation message relating to the sending of a private message
+### @ok2: --> This command identifies a confirmation message relating to the sending of a private message
 
-@only: --> This command identifies a private message with text
+### @only: --> This command identifies a private message with text
 
-@lista: --> This command identifies a message containing the list of nicknames of the various connected clients
+### @lista: --> This command identifies a message containing the list of nicknames of the various connected clients
 
-@exit: --> This command identifies a client leaving the group message, which is forwarded by the server to all connected clients
+### @exit: --> This command identifies a client leaving the group message, which is forwarded by the server to all connected clients
 
 ## Programming notes:
 
