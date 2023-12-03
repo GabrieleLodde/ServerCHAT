@@ -13,7 +13,7 @@ public class ClientConnected extends Thread {
 
     // Declaration of the variables used
     private Socket clientSocket;
-    public ArrayList<ClientConnected> partecipanti;
+    public ArrayList<ClientConnected> clients;
     private String nickname;
     private BufferedReader inDalClient;
     private DataOutputStream outVersoIlClient;
@@ -24,9 +24,9 @@ public class ClientConnected extends Thread {
     private ServerColors color;
 
     // Constructor
-    public ClientConnected(Socket clientSocket, ArrayList<ClientConnected> partecipanti, String nickname) {
+    public ClientConnected(Socket clientSocket, ArrayList<ClientConnected> clients, String nickname) {
         this.clientSocket = clientSocket;
-        this.partecipanti = partecipanti;
+        this.clients = clients;
         this.nickname = nickname;
         this.exit = false;
         this.messageClient = "";
@@ -39,7 +39,7 @@ public class ClientConnected extends Thread {
     public void run() {
 
         // Calling the method to establish the two Input / Output channels
-        instauraCanaliClient();
+        establishClientChannels();
         // Infinite loop, until the client wants to exit
         do {
             try {
@@ -55,28 +55,28 @@ public class ClientConnected extends Thread {
                 // Check on the message containing a new nickname
                 if (messageClient.split(":")[0].equals("@nick")) {
                     // Check the existence of the nickname
-                    if (!checkNome(messageClient)) {
+                    if (!checkNickname(messageClient)) {
                         // Changing the client name and broadcasting the name itself
                         this.setNickname(messageClient.split(":")[1]);
-                        inoltraMessaggioBroadcast(messageClient);
+                        forwardBroadcastMessage(messageClient);
                     }
                 }
                 // Check whether the message should be broadcast
                 else if (messageClient.split(":")[0].equals("@all")) {
-                    inoltraMessaggioBroadcast(messageClient);
+                    forwardBroadcastMessage(messageClient);
                 }
                 // Check if the message should be sent privately
                 else if (messageClient.split(":")[0].equals("@only")) {
-                    inoltraMessaggioPrivato(messageClient);
+                    forwardPrivateMessage(messageClient);
                 }
                 // Check whether to forward the list of connected customer names
                 else if (messageClient.split(":")[0].equals("@lista")) {
-                    inoltraLista(messageClient);
+                    forwardNicknamesList(messageClient);
                 }
                 // Check if the client wants to leave the chat
                 else if (messageClient.split(":")[0].equals("@exit")) {
-                    inoltraMessaggioBroadcast(messageClient);
-                    partecipanti.remove(getClientCollegato());
+                    forwardBroadcastMessage(messageClient);
+                    clients.remove(getClientCollegato());
                     setExit(true);
                 }
             }
@@ -91,7 +91,7 @@ public class ClientConnected extends Thread {
     }
 
     // Method for establishing channels to communicate
-    public void instauraCanaliClient() {
+    public void establishClientChannels() {
         try {
             inDalClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         } catch (IOException e) {
@@ -139,9 +139,9 @@ public class ClientConnected extends Thread {
     }
 
     // Method to search the client index within the global array
-    public int ricercaPartecipante(String privateNick) {
-        for (int i = 0; i < this.partecipanti.size(); i++) {
-            if (this.partecipanti.get(i).getNickname().equals(privateNick)) {
+    public int searchClient(String privateNick) {
+        for (int i = 0; i < this.clients.size(); i++) {
+            if (this.clients.get(i).getNickname().equals(privateNick)) {
                 return i;
             }
         }
@@ -149,9 +149,9 @@ public class ClientConnected extends Thread {
     }
 
     // Method to check the existence of the nickname of the client who wants to join
-    public boolean checkNome(String messageClient) {
+    public boolean checkNickname(String messageClient) {
         String nickClient = messageClient.split(":")[1];
-        if (ricercaPartecipante(nickClient) == -1) {
+        if (searchClient(nickClient) == -1) {
             try {
                 getOutVersoIlClient().writeBytes("@new:" + "\n");
             } catch (IOException e) {
@@ -173,7 +173,7 @@ public class ClientConnected extends Thread {
     // Method to check if the client is alone, therefore the message will not be
     // sent in broadcast
     public boolean checkAlone(String textMessage) {
-        if (this.partecipanti.size() == 1 && !textMessage.equals("*")) {
+        if (this.clients.size() == 1 && !textMessage.equals("*")) {
             try {
                 getOutVersoIlClient().writeBytes("@alone1:" + "\n");
             } catch (IOException e) {
@@ -199,16 +199,16 @@ public class ClientConnected extends Thread {
     }
 
     // Method for forwarding the message in broadcast
-    public void inoltraMessaggioBroadcast(String messageClient) {
+    public void forwardBroadcastMessage(String messageClient) {
         String nicknameClient = messageClient.split(":")[1];
         String textMessage = messageClient.split(":")[2];
         if (!checkAlone(textMessage)) {
             checkConfermaBroadcast(textMessage);
-            for (int i = 0; i < this.partecipanti.size(); i++) {
-                if (!this.partecipanti.get(i).getNickname().equals(nicknameClient)
-                        && !this.partecipanti.get(i).getNickname().equals("")) {
+            for (int i = 0; i < this.clients.size(); i++) {
+                if (!this.clients.get(i).getNickname().equals(nicknameClient)
+                        && !this.clients.get(i).getNickname().equals("")) {
                     try {
-                        this.partecipanti.get(i).getOutVersoIlClient().writeBytes(messageClient + "\n");
+                        this.clients.get(i).getOutVersoIlClient().writeBytes(messageClient + "\n");
                     } catch (IOException e) {
                         System.out.println(color.RED_BOLD_BRIGHT + "ERRORE NELL'INVIO DEL MESSAGGIO IN BROADCAST "
                                 + color.RESET + color.BLACK_BACKGROUND_BRIGHT + dtf.format(now) + color.RESET + "\n");
@@ -221,7 +221,7 @@ public class ClientConnected extends Thread {
     // Method to check if the client is alone, therefore the message will not be
     // sent privately
     public boolean checkAlonePrivate() {
-        if (this.partecipanti.size() == 1) {
+        if (this.clients.size() == 1) {
             try {
                 outVersoIlClient.writeBytes("@alone2:" + "\n");
             } catch (IOException e) {
@@ -235,7 +235,7 @@ public class ClientConnected extends Thread {
 
     // Method for sending the client confirmation of forwarding the entered message
     // to the relevant searched client
-    public void inoltraConfermaPrivata(String privateNick) {
+    public void forwardPrivateConfirmation(String privateNick) {
         try {
             getOutVersoIlClient().writeBytes("@ok2:" + privateNick + "\n");
         } catch (IOException e) {
@@ -246,7 +246,7 @@ public class ClientConnected extends Thread {
 
     // Method for sending the client a warning that the nickname to contact is
     // missing in the chat
-    public void inoltraErroreNickname(String privateNick) {
+    public void forwardNicknameError(String privateNick) {
         try {
             getOutVersoIlClient().writeBytes("@wrong:" + privateNick + "\n");
         } catch (IOException e) {
@@ -256,20 +256,20 @@ public class ClientConnected extends Thread {
     }
 
     // Method to forward the message privately
-    public void inoltraMessaggioPrivato(String messageClient) {
+    public void forwardPrivateMessage(String messageClient) {
         String privateNick = messageClient.split(":", 3)[2].split("#", 2)[0].toUpperCase();
         String textMessage = messageClient.split(":", 3)[2].split("#", 2)[1];
-        int index = ricercaPartecipante(privateNick);
+        int index = searchClient(privateNick);
         if (index != -1) {
             if (!privateNick.equals(messageClient.split(":")[1])) {
                 try {
-                    this.partecipanti.get(index).getOutVersoIlClient()
+                    this.clients.get(index).getOutVersoIlClient()
                             .writeBytes("@only:" + messageClient.split(":")[1] + ":" + textMessage + "\n");
                 } catch (IOException e) {
                     System.out.println(color.RED_BOLD_BRIGHT + "ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO (@only) "
                             + color.RESET + color.BLACK_BACKGROUND_BRIGHT + dtf.format(now) + color.RESET + "\n");
                 }
-                inoltraConfermaPrivata(privateNick);
+                forwardPrivateConfirmation(privateNick);
             } else {
                 try {
                     getOutVersoIlClient().writeBytes("@you:" + privateNick + "\n");
@@ -280,16 +280,16 @@ public class ClientConnected extends Thread {
             }
         } else {
             if (!checkAlonePrivate()) {
-                inoltraErroreNickname(privateNick);
+                forwardNicknameError(privateNick);
             }
         }
     }
 
     // Method for forwarding the list of nicknames of the various clients present in
     // the array
-    public void inoltraLista(String messageClient) {
+    public void forwardNicknamesList(String messageClient) {
         try {
-            getOutVersoIlClient().writeBytes("@lista:" + getListaNicknames() + "\n");
+            getOutVersoIlClient().writeBytes("@lista:" + getNicknamesList() + "\n");
         } catch (IOException e) {
             System.out.println(color.RED_BOLD_BRIGHT + "ERRORE NELL'INVIO DELLA LISTA AL CLIENT (@lista) " + color.RESET
                     + color.BLACK_BACKGROUND_BRIGHT + dtf.format(now) + color.RESET + "\n");
@@ -299,11 +299,11 @@ public class ClientConnected extends Thread {
 
     // Method for creating a string with all the names of the various clients
     // present in the array
-    public String getListaNicknames() {
-        String lista = "";
-        for (int i = 0; i < this.partecipanti.size(); i++) {
-            lista += color.CYAN_BOLD_BRIGHT + this.partecipanti.get(i).getNickname() + ";";
+    public String getNicknamesList() {
+        String list = "";
+        for (int i = 0; i < this.clients.size(); i++) {
+            list += color.CYAN_BOLD_BRIGHT + this.clients.get(i).getNickname() + ";";
         }
-        return lista;
+        return list;
     }
 }

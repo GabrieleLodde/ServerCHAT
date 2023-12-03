@@ -22,15 +22,15 @@ public class AppServer {
             
             // Declarations of ServerSocket and client array 
             ServerSocket connectSocket = new ServerSocket(4500);
-            ArrayList<ClientConnected> partecipanti = new ArrayList<ClientConnected>();
+            ArrayList<ClientConnected> clients = new ArrayList<ClientConnected>();
             
             // Infinite loop where the connection of a new client is accepted
             while (true) {
                 Socket dataSocket = connectSocket.accept();
                 
                 // Declaration and start of the thread associated with the client socket
-                ClientConnected clientAccept = new ClientConnected(dataSocket, partecipanti, "");
-                partecipanti.add(clientAccept);
+                ClientConnected clientAccept = new ClientConnected(dataSocket, clients, "");
+                clients.add(clientAccept);
                 clientAccept.start();
             }
         } catch (Exception e) {
