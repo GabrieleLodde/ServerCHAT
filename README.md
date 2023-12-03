@@ -33,31 +33,31 @@ The ServerColors.java class is used to display each print on the terminal with c
 
 ### Commands sent Server Side:
 
-@new: ..............................................................................
+@new: This command identifies a confirmation message relating to the nickname entered by the client
 
-@old: ..............................................................................
+@old: This command identifies an error message related to entering a nickname that already exists
 
-@nick: ..............................................................................
+@nick: This command identifies a message joining a new client to the group, which is forwarded by the server to all connected clients
 
-@alone1: ..............................................................................
+@alone1: This command identifies an error message related to sending a broadcast message when the client is alone in the chat
 
-@ok1: ..............................................................................
+@ok1: This command identifies a confirmation message relating to the sending of a broadcast message
 
-@all: ..............................................................................
+@all: This command identifies a broadcast message with text
 
-@alone2: ..............................................................................
+@alone2: This command identifies an error message related to sending a private message when the client is alone in the chat
 
-@you: ..............................................................................
+@you: This command identifies an error message related to sending a private message when the client has entered its own nickname
 
-@wrong: ..............................................................................
+@wrong: This command identifies an error message related to sending a private message when the client has entered a nickname of a client that is not present
 
-@ok2: ..............................................................................
+@ok2: This command identifies a confirmation message relating to the sending of a private message
 
-@only: ..............................................................................
+@only: This command identifies a private message with text
 
-@lista: ..............................................................................
+@lista: This command identifies a message containing the list of nicknames of the various connected clients
 
-@exit: ..............................................................................
+@exit: This command identifies a client leaving the group message, which is forwarded by the server to all connected clients
 
 ## Programming notes:
 
