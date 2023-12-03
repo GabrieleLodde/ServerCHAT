@@ -1,56 +1,118 @@
-Chat Server-Client.
+# Colored Chat Client-Server
+---
+## Technologies:
 
-Descrizione del Programma:
+The program was developed with Visual Studio Code software and was written exploiting the potential of the Java language.
 
-Il programma è una semplice applicazione di chat basata su un'architettura server-client implementata in linguaggio Java. La comunicazione avviene tramite socket TCP, consentendo a più client di connettersi al server e partecipare a una chat in tempo reale.
+---
+## Basic operation of the program:
 
-Parte Server:
-1. App.java
-Il file App.java rappresenta il punto di ingresso del server. All'avvio, il server crea un socket in ascolto sulla porta 4500 e accetta connessioni dai client. Ogni client che si connette genera un nuovo thread (ClientCollegato) per gestire la comunicazione con quel particolare client.
+The program represents a client-server application that simulates a chat, by sending commands from client to server and vice versa, with the related printouts based on the type of command received/sent.
 
-2. ClientCollegato.java
-La classe ClientCollegato estende la classe Thread e gestisce la comunicazione con un singolo client. Essa interpreta i comandi inviati dal client e gestisce varie operazioni, inclusi messaggi broadcast, messaggi privati, richieste di lista partecipanti e la gestione delle disconnessioni.
+## Server Side (classes):
 
-Parte Client:
-1. App.java
-Il file App.java è il punto di ingresso del client. Quando avviato, il client si connette al server sulla porta 4500 e inizializza un'istanza di ClientAzioni per gestire le interazioni con l'utente.
+### 1. AppServer.java:
+   
+The AppServer.java class represents the entry point of the server. Upon startup, the server creates a socket listening on port 4500 and accepts connections from clients. Each client that connects generates a new thread (ClientConnected) to manage communication with that particular client, in order to manage multi-threads operation.
 
-2. ClientAzioni.java
-La classe ClientAzioni gestisce le azioni e le interazioni dell'utente. Consente all'utente di inserire un nickname, inviare messaggi broadcast, richiedere la lista dei partecipanti, inviare messaggi privati e uscire dalla chat. Un thread separato (ClientThread) gestisce la ricezione continua di messaggi dal server.
+### 2. ClientConnected.java:
+   
+The ClientConnected.java class extends the Thread class and handles communication with a single client. It interprets commands sent by the client and handles various operations, including broadcast messages, private messages, participant list requests and disconnect management. For each functionality there are checks relating to the feasibility of these operations, since the client could have sent any type of message and the server must be able to handle any situation.
 
-3. ClientThread.java
-La classe ClientThread estende la classe Thread e gestisce la ricezione continua di messaggi dal server. I messaggi ricevuti vengono formattati e visualizzati in modo chiaro per l'utente.
+### 3. ServerColors.java:
 
-Istruzioni per l'Esecuzione:
+The ServerColors.java class is used to display each print on the terminal with criteria relating to the type of print.
 
-Server: 
+## Client Side (classes):
 
-- Eseguire il file App.java nella parte del server. Il server sarà in ascolto sulla porta 4500.
+### 1. AppClient.java:
 
-Client: 
+The App.java class is the client entry point. When started, the client connects to the server on port 4500 and initializes an instance of ClientActions to handle user interactions.
 
-- Eseguire il file App.java nella parte del client. Il client si connetterà al server sulla porta specificata.
-- Inserire un nickname quando richiesto e utilizzare i comandi del menu per interagire con la chat.
-- La chat permette di comunicare in tempo reale con altri partecipanti.
+### 2. ClientActions.java:
+   
+The ClientActions class manages user actions and interactions. Allows the user to enter a nickname, send broadcast messages, request a list of participants, send private messages and exit the chat. This implementation choice was dictated by the need to have a single class to manage each operation granted to the client, rather than having all the functioning within the App.java file (relating to the client part). A separate thread (ClientThread) handles the continuous receipt of messages from the server.
 
-Comandi Disponibili:
+### 3. ClientThread.java:
 
-/all: Invia un messaggio in broadcast a tutti i partecipanti.
+The ClientThread class extends the Thread class and handles the continuous receipt of messages from the server. The messages received are formatted and displayed clearly for the user, based on the commands sent by the server itself at the beginning of each individual message.
 
-/lista: Richiede e visualizza la lista dei partecipanti attuali.
+### 4. ClientColors.java:
 
-/only: Invia un messaggio privato a un partecipante specifico.
+The ClientColors.java class is used to display each print on the terminal with criteria relating to the type of print.
 
-/exit: Abbandona la chat.
+---
+## Instructions for Execution:
 
-Note:
-- I comandi sono preceduti da un simbolo "@" per essere riconosciuti dal server.
-- Il programma gestisce dinamicamente l'aggiunta e la rimozione di partecipanti alla chat.
-- I messaggi sono formattati in modo chiaro per una migliore comprensione.
-- I client non possono avere lo stesso nickname.
+### Server side: 
 
+- Run the AppServer.java file on the server side. The server will be listening on port 4500.
+- For each command received, the server has specific methods that allow linear communication with the client.
 
-Autori.
-Il progetto è stato sviluppato da:
+### Client side: 
 
-Gabriele Lodde, Lorenzo Scarpulla, Tommaso Fallani.
+- Run the AppClient.java file on the client side. The client will connect to the server on the port specified in the socket declaration (by programmer choice on port 4500).
+- Enter a nickname when requested and use the menu commands, displayed only initially, to interact with the chat.
+- If the choice entered is not contemplated, the client is notified and is forced to enter a further one, until it is consistent with those provided in the menu.
+- The program allows you to communicate in real time with other connected clients.
+
+### Choices Available Client Side (from the main menu):
+
+/all: Send a broadcast message to all clients.
+
+/only: Send a private message to a specific client.
+
+/lista: Request and display the list of current clients.
+
+/exit: Leave the chat and exit the communication. Once the communication is expired, the socket that allows the exchange of messages is closed on both the client and server sides.
+
+### Commands sent Server Side:
+
+@new: ..............................................................................
+
+@old: ..............................................................................
+
+@nick: ..............................................................................
+
+@alone1: ..............................................................................
+
+@ok1: ..............................................................................
+
+@all: ..............................................................................
+
+@alone2: ..............................................................................
+
+@you: ..............................................................................
+
+@wrong: ..............................................................................
+
+@ok2: ..............................................................................
+
+@only: ..............................................................................
+
+@lista: ..............................................................................
+
+@exit: ..............................................................................
+
+## Programming notes:
+
+- The commands are preceded by an "@" symbol to be recognized by both the server and the client for printing purposes.
+- The program dynamically manages the addition and removal of clients.
+- Messages are clearly formatted in the ClientThread class for better understanding.
+- Clients cannot have the same nickname, otherwise the server sends the client a further request to change it.
+- Every single print on the terminal is characterized by precise colors, which have been pre-selected based on specific criteria.
+
+## Color criteria
+- Thrown exceptions or general errors are colored "red".
+- Each current hour of the various messages is "white" on a "black background".
+- Every message arriving broadcast or privately is "yellow".
+- Every client name that sends a message or connects to the server or leaves communication is "blue".
+- Each confirmation of sending a broadcast or private message is "green".
+
+## Programmers who created the "Colored Chat"
+
+The program was developed by:
+
+Gabriele Lodde, 
+Lorenzo Scarpulla, 
+Tommaso Fallani
