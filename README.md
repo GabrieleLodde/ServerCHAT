@@ -49,7 +49,7 @@ The ServerColors.java class is used to display each print on the terminal with c
 
 @you: This command identifies an error message related to sending a private message when the client has entered its own nickname
 
-@wrong: This command identifies an error message related to sending a private message when the client has entered a nickname of a client that is not present
+@wrong: This command identifies an error message related to sending a private message with nickname of a client that is not present
 
 @ok2: This command identifies a confirmation message relating to the sending of a private message
 
