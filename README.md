@@ -9,7 +9,7 @@ The program was developed with Visual Studio Code software and was written explo
 
 The program represents a client-server application that simulates a chat, by sending commands from client to server and vice versa, with the related printouts based on the type of command received/sent.
 
-## Server Side (classes):
+## Server Side (classes): 
 
 ### 1. AppServer.java:
    
