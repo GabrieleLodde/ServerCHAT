@@ -6,11 +6,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class App {
+public class AppServer {
     public static void main(String[] args) {
 
         // Declarations of time and color variables
-        ColorExample color = new ColorExample();
+        ServerColors color = new ServerColors();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
         LocalDateTime now = LocalDateTime.now();
 
@@ -22,14 +22,14 @@ public class App {
             
             // Declarations of ServerSocket and client array 
             ServerSocket connectSocket = new ServerSocket(4500);
-            ArrayList<ClientAssociato> partecipanti = new ArrayList<ClientAssociato>();
+            ArrayList<ClientConnected> partecipanti = new ArrayList<ClientConnected>();
             
             // Infinite loop where the connection of a new client is accepted
             while (true) {
                 Socket dataSocket = connectSocket.accept();
                 
                 // Declaration and start of the thread associated with the client socket
-                ClientAssociato clientAccept = new ClientAssociato(dataSocket, partecipanti, "");
+                ClientConnected clientAccept = new ClientConnected(dataSocket, partecipanti, "");
                 partecipanti.add(clientAccept);
                 clientAccept.start();
             }

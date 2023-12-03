@@ -1,7 +1,7 @@
 package com.example;
 
 // Class to have the colors to use in the output strings
-public class ColorExample {
+public class ServerColors {
     public final String RESET = "\033[0m"; // Text Reset
 
     // Bold High Intensity

@@ -9,11 +9,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ClientAssociato extends Thread {
+public class ClientConnected extends Thread {
 
     // Declaration of the variables used
     private Socket clientSocket;
-    public ArrayList<ClientAssociato> partecipanti;
+    public ArrayList<ClientConnected> partecipanti;
     private String nickname;
     private BufferedReader inDalClient;
     private DataOutputStream outVersoIlClient;
@@ -21,10 +21,10 @@ public class ClientAssociato extends Thread {
     private String messageClient;
     private DateTimeFormatter dtf;
     private LocalDateTime now;
-    private ColorExample color;
+    private ServerColors color;
 
     // Constructor
-    public ClientAssociato(Socket clientSocket, ArrayList<ClientAssociato> partecipanti, String nickname) {
+    public ClientConnected(Socket clientSocket, ArrayList<ClientConnected> partecipanti, String nickname) {
         this.clientSocket = clientSocket;
         this.partecipanti = partecipanti;
         this.nickname = nickname;
@@ -32,7 +32,7 @@ public class ClientAssociato extends Thread {
         this.messageClient = "";
         this.dtf = DateTimeFormatter.ofPattern("HH:mm");
         this.now = LocalDateTime.now();
-        this.color = new ColorExample();
+        this.color = new ServerColors();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class ClientAssociato extends Thread {
     }
 
     // Method to return the client itself
-    public ClientAssociato getClientCollegato() {
+    public ClientConnected getClientCollegato() {
         return this;
     }
 
@@ -136,6 +136,16 @@ public class ClientAssociato extends Thread {
     // Method to return the output variable
     public boolean isExit() {
         return exit;
+    }
+
+    // Method to search the client index within the global array
+    public int ricercaPartecipante(String privateNick) {
+        for (int i = 0; i < this.partecipanti.size(); i++) {
+            if (this.partecipanti.get(i).getNickname().equals(privateNick)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     // Method to check the existence of the nickname of the client who wants to join
@@ -168,21 +178,6 @@ public class ClientAssociato extends Thread {
                 getOutVersoIlClient().writeBytes("@alone1:" + "\n");
             } catch (IOException e) {
                 System.out.println(color.RED_BOLD_BRIGHT + "ERRORE NELL'INVIO DEL MESSAGGIO IN BROADCAST (@alone1) "
-                        + color.RESET + color.BLACK_BACKGROUND_BRIGHT + dtf.format(now) + color.RESET + "\n");
-            }
-            return true;
-        }
-        return false;
-    }
-
-    // Method to check if the client is alone, therefore the message will not be
-    // sent privately
-    public boolean checkAlonePrivate() {
-        if (this.partecipanti.size() == 1) {
-            try {
-                outVersoIlClient.writeBytes("@alone2:" + "\n");
-            } catch (IOException e) {
-                System.out.println(color.RED_BOLD_BRIGHT + "ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO (@alone2) "
                         + color.RESET + color.BLACK_BACKGROUND_BRIGHT + dtf.format(now) + color.RESET + "\n");
             }
             return true;
@@ -223,15 +218,19 @@ public class ClientAssociato extends Thread {
         }
     }
 
-    // Method for sending the client a warning that the nickname to contact is
-    // missing in the chat
-    public void inoltraErroreNickname(String privateNick) {
-        try {
-            getOutVersoIlClient().writeBytes("@wrong:" + privateNick + "\n");
-        } catch (IOException e) {
-            System.out.println(color.RED_BOLD_BRIGHT + "ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO (@wrong) " + color.RESET
-                    + color.BLACK_BACKGROUND_BRIGHT + dtf.format(now) + color.RESET + "\n");
+    // Method to check if the client is alone, therefore the message will not be
+    // sent privately
+    public boolean checkAlonePrivate() {
+        if (this.partecipanti.size() == 1) {
+            try {
+                outVersoIlClient.writeBytes("@alone2:" + "\n");
+            } catch (IOException e) {
+                System.out.println(color.RED_BOLD_BRIGHT + "ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO (@alone2) "
+                        + color.RESET + color.BLACK_BACKGROUND_BRIGHT + dtf.format(now) + color.RESET + "\n");
+            }
+            return true;
         }
+        return false;
     }
 
     // Method for sending the client confirmation of forwarding the entered message
@@ -245,14 +244,15 @@ public class ClientAssociato extends Thread {
         }
     }
 
-    // Method to search the client index within the global array
-    public int ricercaPartecipante(String privateNick) {
-        for (int i = 0; i < this.partecipanti.size(); i++) {
-            if (this.partecipanti.get(i).getNickname().equals(privateNick)) {
-                return i;
-            }
+    // Method for sending the client a warning that the nickname to contact is
+    // missing in the chat
+    public void inoltraErroreNickname(String privateNick) {
+        try {
+            getOutVersoIlClient().writeBytes("@wrong:" + privateNick + "\n");
+        } catch (IOException e) {
+            System.out.println(color.RED_BOLD_BRIGHT + "ERRORE NELL'INVIO DEL MESSAGGIO PRIVATO (@wrong) " + color.RESET
+                    + color.BLACK_BACKGROUND_BRIGHT + dtf.format(now) + color.RESET + "\n");
         }
-        return -1;
     }
 
     // Method to forward the message privately
