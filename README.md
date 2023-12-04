@@ -66,7 +66,7 @@ This command identifies a confirmation message relating to the sending of a priv
 ### @only: --> 
 This command identifies a private message with text
 
-### @lista: --> 
+### @list: --> 
 This command identifies a message containing the list of nicknames of the various connected clients
 
 ### @exit: --> 
