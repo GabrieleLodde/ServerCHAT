@@ -173,7 +173,7 @@ public class ClientConnected extends Thread {
     // Method to check if the client is alone, therefore the message will not be
     // sent in broadcast
     public boolean checkAlone(String textMessage) {
-        if (this.clients.size() == 1 && !textMessage.equals("*")) {
+        if (this.clients.size() == 1 && !textMessage.equals("*") && !textMessage.equals("-")) {
             try {
                 getOutVersoIlClient().writeBytes("@alone1:" + "\n");
             } catch (IOException e) {
@@ -188,7 +188,7 @@ public class ClientConnected extends Thread {
     // Method to check if the client wants to send a broadcast message and has not
     // entered its nickname
     public void checkConfermaBroadcast(String textMessage) {
-        if (!textMessage.equals("*")) {
+        if (!textMessage.equals("*") && !textMessage.equals("-")) {
             try {
                 getOutVersoIlClient().writeBytes("@ok1:" + "\n");
             } catch (IOException e) {
