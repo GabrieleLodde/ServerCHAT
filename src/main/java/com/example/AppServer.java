@@ -30,7 +30,6 @@ public class AppServer {
                 
                 // Declaration and start of the thread associated with the client socket
                 ClientConnected clientAccept = new ClientConnected(dataSocket, clients, "");
-                clients.add(clientAccept);
                 clientAccept.start();
             }
         } catch (Exception e) {

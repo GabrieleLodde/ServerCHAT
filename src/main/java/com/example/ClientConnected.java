@@ -23,7 +23,6 @@ public class ClientConnected extends Thread {
     private LocalDateTime now;
     private ServerColors color;
 
-    // Constructor
     public ClientConnected(Socket clientSocket, ArrayList<ClientConnected> clients, String nickname) {
         this.clientSocket = clientSocket;
         this.clients = clients;
@@ -57,6 +56,7 @@ public class ClientConnected extends Thread {
                     // Check the existence of the nickname
                     if (!checkNickname(messageClient)) {
                         // Changing the client name and broadcasting the name itself
+                        clients.add(this);
                         this.setNickname(messageClient.split(":")[1]);
                         forwardBroadcastMessage(messageClient);
                     }
