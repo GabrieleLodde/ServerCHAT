@@ -70,7 +70,7 @@ public class ClientConnected extends Thread {
                     forwardPrivateMessage(messageClient);
                 }
                 // Check whether to forward the list of connected customer names
-                else if (messageClient.split(":")[0].equals("@lista")) {
+                else if (messageClient.split(":")[0].equals("@list")) {
                     forwardNicknamesList(messageClient);
                 }
                 // Check if the client wants to leave the chat
@@ -289,9 +289,9 @@ public class ClientConnected extends Thread {
     // the array
     public void forwardNicknamesList(String messageClient) {
         try {
-            getOutVersoIlClient().writeBytes("@lista:" + getNicknamesList() + "\n");
+            getOutVersoIlClient().writeBytes("@list:" + getNicknamesList() + "\n");
         } catch (IOException e) {
-            System.out.println(color.RED_BOLD_BRIGHT + "ERRORE NELL'INVIO DELLA LISTA AL CLIENT (@lista) " + color.RESET
+            System.out.println(color.RED_BOLD_BRIGHT + "ERRORE NELL'INVIO DELLA LISTA AL CLIENT (@list) " + color.RESET
                     + color.BLACK_BACKGROUND_BRIGHT + dtf.format(now) + color.RESET + "\n");
             ;
         }
